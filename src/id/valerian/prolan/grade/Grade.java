@@ -1,0 +1,793 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package id.valerian.prolan.grade;
+
+import id.valerian.prolan.connection.db_connection;
+import static id.valerian.prolan.user.User.containsNumbers;
+import java.io.File;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+import net.sf.jasperreports.engine.JasperCompileManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.design.JasperDesign;
+import net.sf.jasperreports.engine.xml.JRXmlLoader;
+import net.sf.jasperreports.view.JasperViewer;
+
+/**
+ *
+ * @author Valerian
+ */
+public class Grade extends javax.swing.JInternalFrame {
+
+    ResultSet rs;
+    boolean invalid;
+    String idSelected;
+
+    /**
+     * Creates new form Grade
+     */
+    public Grade() {
+        initComponents();
+        btnGroupSmst.add(jRadioButton1);
+        btnGroupSmst.add(jRadioButton2);
+        show_grades();
+        try {
+            String sql = "SELECT kd_mapel from t_matpel";
+            java.sql.Connection conn = (Connection) db_connection.configDB();
+            Statement st = conn.createStatement();
+            rs = st.executeQuery(sql);
+            cbKdMapel.addItem("-Pilihan-");
+            while (rs.next()) {
+                cbKdMapel.addItem(rs.getString("kd_mapel"));
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.getMessage());
+        }
+        int yearNow = Integer.parseInt(new SimpleDateFormat("yyyy").format(new Date()));
+        cbTA.addItem(yearNow + "/" + (yearNow + 1));
+        for (int i = 0; i < 3; i++) {
+            yearNow -= 1;
+            cbTA.addItem(yearNow + "/" + (yearNow + 1));
+        }
+    }
+
+    private void show_grades() {
+        DefaultTableModel model = new DefaultTableModel();
+        model.addColumn("No");
+        model.addColumn("Tahun Ajaran");
+        model.addColumn("Semester");
+        model.addColumn("Kode MP");
+        model.addColumn("Mata Pelajaran");
+        model.addColumn("NIPD");
+        model.addColumn("Nama");
+        model.addColumn("Nilai");
+        model.addColumn("Keterangan");
+        try {
+            String sql = null;
+            int data_count = 0;
+            if (cbSearch.getModel().getSelectedItem().equals("Nama Siswa")) {
+                sql = "SELECT t_nilai.tahun_ajaran,t_nilai.id_nilai,t_nilai.semester, t_nilai.kd_mapel, t_matpel.nama_mapel, t_nilai.NIPD, t_siswa.Nama_Siswa, t_nilai.nilai, t_matpel.KKM,t_nilai.Keterangan\n"
+                        + "FROM (t_ptk INNER JOIN t_matpel ON t_ptk.NIK = t_matpel.NIK) INNER JOIN ((t_kelas INNER JOIN t_siswa ON t_kelas.id_kelas = t_siswa.id_kelas) INNER JOIN t_nilai ON t_siswa.NIPD = t_nilai.NIPD) ON t_matpel.kd_mapel = t_nilai.kd_mapel AND t_siswa.nama_siswa LIKE '" + txtSearch.getText() + "%'\n"
+                        + "ORDER BY t_nilai.semester, t_matpel.nama_mapel;";
+            } else if (cbSearch.getModel().getSelectedItem().equals("Mata Pelajaran")) {
+                sql = "SELECT t_nilai.tahun_ajaran,t_nilai.id_nilai,t_nilai.semester, t_nilai.kd_mapel, t_matpel.nama_mapel, t_nilai.NIPD, t_siswa.Nama_Siswa, t_nilai.nilai, t_matpel.KKM,t_nilai.Keterangan\n"
+                        + "FROM (t_ptk INNER JOIN t_matpel ON t_ptk.NIK = t_matpel.NIK) INNER JOIN ((t_kelas INNER JOIN t_siswa ON t_kelas.id_kelas = t_siswa.id_kelas) INNER JOIN t_nilai ON t_siswa.NIPD = t_nilai.NIPD) ON t_matpel.kd_mapel = t_nilai.kd_mapel AND t_matpel.nama_mapel LIKE '" + txtSearch.getText() + "%'\n"
+                        + "ORDER BY t_nilai.semester, t_matpel.nama_mapel;";
+            }
+            java.sql.Connection conn = (Connection) db_connection.configDB();
+            Statement st = conn.createStatement();
+            rs = st.executeQuery(sql);
+            while (rs.next()) {
+                model.addRow(new Object[]{rs.getString("id_nilai"), rs.getString("tahun_ajaran"), rs.getString("semester"), rs.getString("kd_mapel"), rs.getString("nama_mapel"), rs.getString("NIPD"), rs.getString("Nama_Siswa"), rs.getString("nilai"), rs.getString("Keterangan"), rs.getString("id_nilai")});
+                data_count++;
+            }
+            tableGrade.setModel(model);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.getMessage());
+        }
+    }
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        btnGroupSmst = new javax.swing.ButtonGroup();
+        jPanel1 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        jRadioButton1 = new javax.swing.JRadioButton();
+        jRadioButton2 = new javax.swing.JRadioButton();
+        txtNIPD = new javax.swing.JTextField();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        txtNama = new javax.swing.JTextField();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        txtKelas = new javax.swing.JTextField();
+        txtJurusan = new javax.swing.JTextField();
+        jLabel11 = new javax.swing.JLabel();
+        cbTA = new javax.swing.JComboBox<>();
+        jPanel2 = new javax.swing.JPanel();
+        jLabel6 = new javax.swing.JLabel();
+        cbKdMapel = new javax.swing.JComboBox<>();
+        jLabel7 = new javax.swing.JLabel();
+        txtMatPel = new javax.swing.JTextField();
+        jLabel8 = new javax.swing.JLabel();
+        txtPengajar = new javax.swing.JTextField();
+        txtNilai = new javax.swing.JTextField();
+        jLabel9 = new javax.swing.JLabel();
+        jLabel10 = new javax.swing.JLabel();
+        txtKeterangan = new javax.swing.JTextField();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tableGrade = new javax.swing.JTable();
+        btnAdd = new javax.swing.JButton();
+        btnEdit = new javax.swing.JButton();
+        btnDelete = new javax.swing.JButton();
+        btnReset = new javax.swing.JButton();
+        btnCetakLaporan = new javax.swing.JButton();
+        txtSearch = new javax.swing.JTextField();
+        jLabel12 = new javax.swing.JLabel();
+        cbSearch = new javax.swing.JComboBox<>();
+
+        setClosable(true);
+        setIconifiable(true);
+        setTitle("Data Nilai Siswa");
+
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Data Siswa"));
+
+        jLabel1.setText("Semester");
+
+        jRadioButton1.setText("1");
+
+        jRadioButton2.setText("2");
+
+        txtNIPD.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                txtNIPDFocusLost(evt);
+            }
+        });
+        txtNIPD.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                txtNIPDKeyReleased(evt);
+            }
+        });
+
+        jLabel2.setText("NIPD");
+
+        jLabel3.setText("Nama");
+
+        txtNama.setEnabled(false);
+
+        jLabel4.setText("Jurusan");
+
+        jLabel5.setText("Kelas");
+
+        txtKelas.setEnabled(false);
+
+        txtJurusan.setEnabled(false);
+
+        jLabel11.setText("Tahun Ajaran");
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel1)
+                            .addComponent(jLabel2)
+                            .addComponent(jLabel3)
+                            .addComponent(jLabel4)
+                            .addComponent(jLabel5))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(txtJurusan)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(27, 27, 27)
+                                .addComponent(jRadioButton1)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jRadioButton2)
+                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addComponent(txtNama)
+                            .addComponent(txtNIPD)
+                            .addComponent(txtKelas)))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel11)
+                        .addGap(18, 18, 18)
+                        .addComponent(cbTA, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 9, Short.MAX_VALUE)))
+                .addContainerGap())
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(jRadioButton1)
+                    .addComponent(jRadioButton2))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel11)
+                    .addComponent(cbTA, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel2)
+                    .addComponent(txtNIPD, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel3)
+                    .addComponent(txtNama, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(17, 17, 17)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel4)
+                    .addComponent(txtJurusan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel5)
+                    .addComponent(txtKelas, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(21, Short.MAX_VALUE))
+        );
+
+        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("Data Pelajaran"));
+
+        jLabel6.setText("Kode Mata Pelajaran");
+
+        cbKdMapel.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                cbKdMapelItemStateChanged(evt);
+            }
+        });
+
+        jLabel7.setText("Mata Pelajaran");
+
+        txtMatPel.setEnabled(false);
+
+        jLabel8.setText("Pengajar");
+
+        txtPengajar.setEnabled(false);
+
+        txtNilai.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                txtNilaiKeyReleased(evt);
+            }
+        });
+
+        jLabel9.setText("Nilai");
+
+        jLabel10.setText("Keterangan");
+
+        txtKeterangan.setEnabled(false);
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel6)
+                    .addComponent(jLabel7)
+                    .addComponent(jLabel8)
+                    .addComponent(jLabel9)
+                    .addComponent(jLabel10))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(txtNilai)
+                    .addComponent(cbKdMapel, javax.swing.GroupLayout.PREFERRED_SIZE, 99, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtPengajar)
+                    .addComponent(txtKeterangan, javax.swing.GroupLayout.DEFAULT_SIZE, 210, Short.MAX_VALUE)
+                    .addComponent(txtMatPel))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel6)
+                    .addComponent(cbKdMapel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel7)
+                    .addComponent(txtMatPel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel8)
+                    .addComponent(txtPengajar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(txtNilai, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel9))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(txtKeterangan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel10))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        tableGrade.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        tableGrade.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tableGradeMouseClicked(evt);
+            }
+        });
+        jScrollPane1.setViewportView(tableGrade);
+
+        btnAdd.setIcon(new javax.swing.ImageIcon(getClass().getResource("/id/valerian/prolan/images/add.png"))); // NOI18N
+        btnAdd.setText("Add");
+        btnAdd.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAddActionPerformed(evt);
+            }
+        });
+
+        btnEdit.setIcon(new javax.swing.ImageIcon(getClass().getResource("/id/valerian/prolan/images/edit.png"))); // NOI18N
+        btnEdit.setText("Edit");
+        btnEdit.setEnabled(false);
+        btnEdit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEditActionPerformed(evt);
+            }
+        });
+
+        btnDelete.setIcon(new javax.swing.ImageIcon(getClass().getResource("/id/valerian/prolan/images/trash.png"))); // NOI18N
+        btnDelete.setText("Delete");
+        btnDelete.setEnabled(false);
+        btnDelete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeleteActionPerformed(evt);
+            }
+        });
+
+        btnReset.setIcon(new javax.swing.ImageIcon(getClass().getResource("/id/valerian/prolan/images/reset.png"))); // NOI18N
+        btnReset.setText("Reset");
+        btnReset.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnResetActionPerformed(evt);
+            }
+        });
+
+        btnCetakLaporan.setIcon(new javax.swing.ImageIcon(getClass().getResource("/id/valerian/prolan/images/document.png"))); // NOI18N
+        btnCetakLaporan.setText("Cetak Laporan");
+        btnCetakLaporan.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCetakLaporanActionPerformed(evt);
+            }
+        });
+
+        txtSearch.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                txtSearchKeyReleased(evt);
+            }
+        });
+
+        jLabel12.setIcon(new javax.swing.ImageIcon(getClass().getResource("/id/valerian/prolan/images/search.png"))); // NOI18N
+
+        cbSearch.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Nama Siswa", "Mata Pelajaran" }));
+        cbSearch.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                cbSearchItemStateChanged(evt);
+            }
+        });
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(btnAdd)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(btnEdit)
+                                .addGap(10, 10, 10)
+                                .addComponent(btnDelete)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(btnReset))
+                            .addComponent(btnCetakLaporan)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(cbSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 487, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jLabel12)))
+                .addContainerGap())
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(btnAdd)
+                            .addComponent(btnEdit)
+                            .addComponent(btnDelete)
+                            .addComponent(btnReset))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnCetakLaporan)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 20, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(cbSearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jLabel12))
+                .addGap(22, 22, 22))
+        );
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void cbKdMapelItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cbKdMapelItemStateChanged
+        try {
+            if (!cbKdMapel.getModel().getSelectedItem().equals("-Pilihan-")) {
+                String sql = "SELECT t_matpel.nama_mapel,t_ptk.Nama_PTK FROM t_matpel INNER JOIN t_ptk ON t_matpel.kd_mapel = '" + cbKdMapel.getModel().getSelectedItem().toString() + "' AND t_matpel.NIK = t_ptk.NIK";
+                java.sql.Connection conn = (Connection) db_connection.configDB();
+                Statement st = conn.createStatement();
+                rs = st.executeQuery(sql);
+                if (rs.next()) {
+                    txtMatPel.setText(rs.getString("nama_mapel"));
+                    txtPengajar.setText(rs.getString("Nama_PTK"));
+                }
+                setKeterangan();
+            } else {
+                txtMatPel.setText("");
+                txtPengajar.setText("");
+                txtKeterangan.setText("");
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.getMessage());
+        }
+    }//GEN-LAST:event_cbKdMapelItemStateChanged
+
+    private void txtNilaiKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtNilaiKeyReleased
+        setKeterangan();
+        Integer nilaiLength = txtNilai.getText().length();
+        String subStr = txtNilai.getText();
+        if (!containsNumbers(subStr)) {
+            txtNilai.setText(subStr.substring(0, nilaiLength - 1));
+        } else {
+            if (nilaiLength.compareTo(3) > 0) {
+                txtNilai.setText(subStr.substring(0, nilaiLength - 1));
+                JOptionPane.showMessageDialog(this, "Maksimal karakter KKM hanya bisa 3!", "Pesan", JOptionPane.WARNING_MESSAGE);
+            } else if (Integer.parseInt(subStr) > 100) {
+                txtNilai.setText("100");
+                JOptionPane.showMessageDialog(this, "Nilai maksimal adalah 100", "Pesan", JOptionPane.WARNING_MESSAGE);
+            }
+        }
+    }//GEN-LAST:event_txtNilaiKeyReleased
+
+    private void tableGradeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableGradeMouseClicked
+        btnAdd.setEnabled(false);
+        btnEdit.setEnabled(true);
+        btnDelete.setEnabled(true);
+        TableModel model = tableGrade.getModel();
+        int i = tableGrade.getSelectedRow();
+        txtNIPD.setEnabled(false);
+        txtNIPD.setText(model.getValueAt(i, 5).toString());
+        cbKdMapel.getModel().setSelectedItem(model.getValueAt(i, 3).toString());
+        txtNilai.setText(model.getValueAt(i, 7).toString());
+        switch (model.getValueAt(i, 2).toString()) {
+            case "1":
+                jRadioButton1.setSelected(true);
+                break;
+            case "2":
+                jRadioButton2.setSelected(true);
+                break;
+        }
+        txtKeterangan.setText(model.getValueAt(i, 8).toString());
+        idSelected = model.getValueAt(i, 0).toString();
+        cbTA.getModel().setSelectedItem(model.getValueAt(i, 1).toString());
+        getDetailStudents();
+    }//GEN-LAST:event_tableGradeMouseClicked
+
+    private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
+        invalid = checkField();
+        if (!invalid) {
+            try {
+                int maxID = 0;
+                String sqlmax = "SELECT MAX(id_nilai) FROM t_nilai";
+                java.sql.Connection conn1 = (Connection) db_connection.configDB();
+                java.sql.PreparedStatement pst = conn1.prepareStatement(sqlmax);
+                rs = pst.executeQuery();
+                if (rs.next()) {
+                    maxID = rs.getInt(1);
+                }
+                int maxIDnow = maxID + 1;
+                String sql = "INSERT INTO t_nilai VALUES ('" + maxIDnow + "','" + cbTA.getModel().getSelectedItem().toString() + "','" + checkSemester() + "','" + cbKdMapel.getModel().getSelectedItem().toString() + "','" + txtNIPD.getText() + "','" + txtNilai.getText() + "','" + txtKeterangan.getText() + "')";
+                java.sql.Connection conn = (Connection) db_connection.configDB();
+                java.sql.PreparedStatement pst2 = conn.prepareStatement(sql);
+                pst2.execute();
+                JOptionPane.showMessageDialog(null, "Penyimpanan data nilai berhasil");
+                resetField();
+                resetTable();
+                show_grades();
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, e.getMessage());
+            }
+        }
+    }//GEN-LAST:event_btnAddActionPerformed
+
+    private void btnEditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditActionPerformed
+        invalid = checkField();
+        if (!invalid) {
+            try {
+                String sql = "UPDATE t_nilai SET semester = '" + checkSemester() + "',tahun_ajaran = '" + cbTA.getModel().getSelectedItem().toString() + "',kd_mapel = '" + cbKdMapel.getModel().getSelectedItem().toString() + "',nilai = '" + txtNilai.getText() + "',keterangan = '" + txtKeterangan.getText() + "' WHERE id_nilai = '" + idSelected + "'";
+                java.sql.Connection conn = (Connection) db_connection.configDB();
+                java.sql.PreparedStatement pst = conn.prepareStatement(sql);
+                pst.executeUpdate();
+                resetField();
+                resetTable();
+                show_grades();
+                JOptionPane.showMessageDialog(null, "Data berhasil diubah!");
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(null, e.getMessage());
+            }
+        }
+    }//GEN-LAST:event_btnEditActionPerformed
+
+    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
+        try {
+            int reply = JOptionPane.showConfirmDialog(null, "Apakah Anda Yakin untuk menghapus data berikut?", title, JOptionPane.YES_NO_OPTION);
+            if (reply == JOptionPane.YES_OPTION) {
+                String sql = "DELETE FROM t_nilai WHERE id_nilai = '" + idSelected + "'";
+                java.sql.Connection conn = (Connection) db_connection.configDB();
+                java.sql.PreparedStatement pst = conn.prepareStatement(sql);
+                pst.executeUpdate();
+                resetField();
+                resetTable();
+                show_grades();
+                JOptionPane.showMessageDialog(null, "Data berhasil dihapus!");
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.getMessage());
+        }
+    }//GEN-LAST:event_btnDeleteActionPerformed
+
+    private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnResetActionPerformed
+        resetField();
+    }//GEN-LAST:event_btnResetActionPerformed
+
+    private void btnCetakLaporanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCetakLaporanActionPerformed
+        try {
+            HashMap parameter = new HashMap();
+            parameter.put("tahun_ajaran", "");
+            parameter.put("kelas", "");
+            parameter.put("jurusan", "");
+            parameter.put("nama_mapel", "");
+            Connection conn = db_connection.configDB();
+            File file = new File("src/id/valerian/prolan/report/reportGrades.jrxml");
+            JasperDesign jasperDesign = JRXmlLoader.load(file);
+            JasperReport jasperReport = JasperCompileManager.compileReport(jasperDesign);
+            JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameter, conn);
+            JasperViewer.viewReport(jasperPrint, false);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.getMessage());
+        }
+    }//GEN-LAST:event_btnCetakLaporanActionPerformed
+
+    private void txtNIPDFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtNIPDFocusLost
+        if (!txtNIPD.getText().equals("")) {
+            getDetailStudents();
+        }
+    }//GEN-LAST:event_txtNIPDFocusLost
+
+    private void txtNIPDKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtNIPDKeyReleased
+        Integer nipdLength = txtNIPD.getText().length();
+        String subStr = txtNIPD.getText();
+        if (nipdLength.compareTo(nipdLength - 1) > 0) {
+            txtNama.setText("");
+            txtJurusan.setText("");
+            txtKelas.setText("");
+        }
+        if (!txtNIPD.getText().equals("")) {
+            if (!containsNumbers(subStr)) {
+                txtNIPD.setText(subStr.substring(0, nipdLength - 1));
+            } else {
+                if (nipdLength.compareTo(8) > 0) {
+                    txtNIPD.setText(subStr.substring(0, nipdLength - 1));
+                    JOptionPane.showMessageDialog(this, "Maksimal karakter NIPD hanya bisa 8!", "Pesan", JOptionPane.WARNING_MESSAGE);
+                }
+                if (nipdLength.compareTo(7) > 0) {
+                    getDetailStudents();
+                }
+            }
+        }
+    }//GEN-LAST:event_txtNIPDKeyReleased
+
+    private void txtSearchKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtSearchKeyReleased
+        show_grades();
+    }//GEN-LAST:event_txtSearchKeyReleased
+
+    private void cbSearchItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cbSearchItemStateChanged
+        show_grades();
+    }//GEN-LAST:event_cbSearchItemStateChanged
+
+    private int checkSemester() {
+        int semester = 0;
+        if (jRadioButton1.isSelected()) {
+            semester = 1;
+        } else if (jRadioButton2.isSelected()) {
+            semester = 2;
+        }
+        return semester;
+    }
+
+    private void resetField() {
+        jRadioButton1.setSelected(false);
+        jRadioButton2.setSelected(false);
+        txtNIPD.setEnabled(true);
+        btnEdit.setEnabled(false);
+        btnDelete.setEnabled(false);
+        btnAdd.setEnabled(true);
+        txtNIPD.setText("");
+        txtNama.setText("");
+        txtJurusan.setText("");
+        txtKelas.setText("");
+        txtPengajar.setText("");
+        txtMatPel.setText("");
+        txtKeterangan.setText("");
+        cbKdMapel.setSelectedIndex(0);
+        txtNilai.setText("");
+        txtSearch.setText("");
+    }
+
+    private void resetTable() {
+        DefaultTableModel model = (DefaultTableModel) tableGrade.getModel();
+        model.setRowCount(0);
+    }
+
+    private boolean checkField() {
+        if (btnGroupSmst.getSelection() == null) {
+            JOptionPane.showMessageDialog(null, "Semester harus dipilih", "Pesan", JOptionPane.WARNING_MESSAGE);
+            return true;
+        } else if (btnGroupSmst.getSelection() == null) {
+            JOptionPane.showMessageDialog(null, "Semester harus dipilih", "Pesan", JOptionPane.WARNING_MESSAGE);
+            return true;
+        } else if (txtNIPD.getText().equals("")) {
+            JOptionPane.showMessageDialog(null, "NIPD tidak boleh kosong", "Pesan", JOptionPane.WARNING_MESSAGE);
+            txtNIPD.requestFocus();
+            return true;
+        } else if (cbKdMapel.getModel().getSelectedItem().equals("-Pilihan")) {
+            JOptionPane.showMessageDialog(null, "Kode Mata Pelajaran harus dipilih", "Pesan", JOptionPane.WARNING_MESSAGE);
+            cbKdMapel.requestFocus();
+            return true;
+        } else if (txtNilai.getText().equals("")) {
+            JOptionPane.showMessageDialog(null, "Nilai tidak boleh kosong", "Pesan", JOptionPane.WARNING_MESSAGE);
+            txtNilai.requestFocus();
+            return true;
+        }
+        return false;
+    }
+
+    private void getDetailStudents() {
+        try {
+            String sql = "SELECT t_siswa.Nama_siswa,t_kelas.jurusan,t_kelas.tingkat_kelas FROM t_siswa INNER JOIN t_kelas ON t_siswa.id_kelas = t_kelas.id_kelas AND t_siswa.NIPD = '" + txtNIPD.getText().toString() + "'";
+            java.sql.Connection conn = (Connection) db_connection.configDB();
+            Statement st = conn.createStatement();
+            rs = st.executeQuery(sql);
+            if (rs.next()) {
+                txtNama.setText(rs.getString("nama_siswa"));
+                txtJurusan.setText(rs.getString("jurusan"));
+                txtKelas.setText(rs.getString("tingkat_kelas"));
+            } else {
+                JOptionPane.showMessageDialog(null, "NIPD tidak ditemukan!");
+                txtNIPD.setText("");
+                txtNIPD.requestFocus(true);
+                txtNama.setText("");
+                txtJurusan.setText("");
+                txtKelas.setText("");
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.getMessage());
+        }
+    }
+
+    private void setKeterangan() {
+        try {
+            int KKM = 0;
+            if (!cbKdMapel.getModel().getSelectedItem().equals("-Pilihan-")) {
+                String sql = "SELECT KKM FROM t_matpel WHERE kd_mapel = '" + cbKdMapel.getModel().getSelectedItem().toString() + "'";
+                java.sql.Connection conn = (Connection) db_connection.configDB();
+                Statement st = conn.createStatement();
+                rs = st.executeQuery(sql);
+                if (rs.next()) {
+                    KKM = Integer.parseInt(rs.getString("KKM"));
+                }
+                if (!(txtNilai.getText().length() == 0)) {
+                    if (Integer.parseInt(txtNilai.getText().toString()) < KKM) {
+                        txtKeterangan.setText("TIDAK LULUS");
+                    } else {
+                        txtKeterangan.setText("LULUS");
+                    }
+                } else {
+                    txtKeterangan.setText("");
+                }
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.getMessage());
+        }
+    }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnAdd;
+    private javax.swing.JButton btnCetakLaporan;
+    private javax.swing.JButton btnDelete;
+    private javax.swing.JButton btnEdit;
+    private javax.swing.ButtonGroup btnGroupSmst;
+    private javax.swing.JButton btnReset;
+    private javax.swing.JComboBox<String> cbKdMapel;
+    private javax.swing.JComboBox<String> cbSearch;
+    private javax.swing.JComboBox<String> cbTA;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JRadioButton jRadioButton1;
+    private javax.swing.JRadioButton jRadioButton2;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTable tableGrade;
+    private javax.swing.JTextField txtJurusan;
+    private javax.swing.JTextField txtKelas;
+    private javax.swing.JTextField txtKeterangan;
+    private javax.swing.JTextField txtMatPel;
+    private javax.swing.JTextField txtNIPD;
+    private javax.swing.JTextField txtNama;
+    private javax.swing.JTextField txtNilai;
+    private javax.swing.JTextField txtPengajar;
+    private javax.swing.JTextField txtSearch;
+    // End of variables declaration//GEN-END:variables
+}
